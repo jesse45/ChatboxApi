@@ -10,5 +10,6 @@
   "pathNames": {
     "users": "users",
     "session": "session"
-  }
+  },
+  "apiKey": ""
 }

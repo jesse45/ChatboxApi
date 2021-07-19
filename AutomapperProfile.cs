@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using ChatboxApi.Dtos;
+using ChatboxApi.Dtos.Session;
+using ChatboxApi.Models;
 using ChatboxApi.Utilities;
 using System;
 using System.Collections.Generic;
@@ -14,6 +16,8 @@ namespace ChatboxApi
         {
             CreateMap<SessionObject, SessionDto>();
             CreateMap<SessionDto, SessionObject>();
+            CreateMap<SignUpUser, SignUpUserDto>();
+            
         }
     }
 }

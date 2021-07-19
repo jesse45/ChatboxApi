@@ -9,6 +9,8 @@ using System.Reflection;
 using System.Collections;
 using System.Text;
 using System.Security.Cryptography;
+using AutoMapper;
+using System.Dynamic;
 
 namespace ChatboxApi.Utilities
 {
@@ -50,14 +52,22 @@ namespace ChatboxApi.Utilities
 
     public class ConnectyCubeUtils
     {
-        public async Task<SessionObject> GenerateSessionParams(UserModel user)
+        private readonly IMapper _mapper;
+
+        public ConnectyCubeUtils() { }
+        public ConnectyCubeUtils(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+        public async Task<ExpandoObject> GenerateSessionParams(UserModel user)
         {
             string filename = "config.json";
             using FileStream openStream = File.OpenRead(filename);
             Config config = await JsonSerializer.DeserializeAsync<Config>(openStream);
 
 
-            SessionObject session = new SessionObject();
+            /*SessionObject session = new SessionObject();*/
+            dynamic session = new ExpandoObject();
             double nonce = this.RandomNonce();
             double timestamp = this.GetTimeStamp();
             SortedDictionary<string, string> sessionPairs = new SortedDictionary<string, string>();
@@ -86,12 +96,12 @@ namespace ChatboxApi.Utilities
                 sessionPairs.Add("email", user.Email);
                 sessionPairs.Add("password", user.Password);
             }
-            
+
 
             var signSession = this.SignParams(sessionPairs);
-            Console.WriteLine(signSession);
+            /*Console.WriteLine(signSession);*/
 
-            Console.WriteLine($"authSecret is : {config.cred.authSecret}");
+            //Console.WriteLine($"authSecret is : {config.cred.authSecret}");
 
             //convert the session signature string to a byte array
             byte[] signature = Encoding.UTF8.GetBytes(signSession.ToString());
@@ -106,10 +116,11 @@ namespace ChatboxApi.Utilities
             {
                 byte[] signatureBytes = hmac.ComputeHash(signature);
                 string hexSignature = BitConverter.ToString(signatureBytes).ToLowerInvariant().Replace("-", "");
-                Console.WriteLine(hexSignature);
+                //Console.WriteLine(hexSignature);
                 session.signature = hexSignature;
             }
-
+            
+            Console.WriteLine(session.signature);
             return session;
         }
 
@@ -136,22 +147,32 @@ namespace ChatboxApi.Utilities
         {
             StringBuilder signature = new StringBuilder();
 
+         /*   foreach(KeyValuePair<string, string> kvp in sessionPairs)
+            {
+                Console.WriteLine($"Key : {kvp.Key}");
+                Console.WriteLine($"Value: {kvp.Value}");
+            }*/
+
             signature.Append($"application_id={sessionPairs["application_id"]}&");
             signature.Append($"auth_key={sessionPairs["auth_key"]}&");
             signature.Append($"nonce={sessionPairs["nonce"]}&");
-            signature.Append($"timestamp={sessionPairs["timestamp"]}&");
+            signature.Append($"timestamp={sessionPairs["timestamp"]}");
 
             if(sessionPairs.ContainsKey("login"))
             {
-                signature.Append($"user[login]={sessionPairs["login"]}&");
+                signature.Append($"&user[login]={sessionPairs["login"]}&");
                 signature.Append($"user[password]={sessionPairs["password"]}");
+                /*Console.WriteLine(sessionPairs.ContainsKey("login"));*/
             }
             else if(sessionPairs.ContainsKey("email"))
             {
-                signature.Append($"user[email]={sessionPairs["email"]}&");
+                signature.Append($"&user[email]={sessionPairs["email"]}&");
                 signature.Append($"user[password]={sessionPairs["password"]}");
+                /*Console.WriteLine(sessionPairs.ContainsKey("email"));*/
             }
-            
+
+            Console.WriteLine(signature);
+
             return signature;
         }
         public string GetUrl(string path)

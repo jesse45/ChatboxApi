@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ChatboxApi.Middleware;
 using ChatboxApi.Services.AuthService;
 using ChatboxApi.Utilities.ConnectyCubeApi;
+using ChatboxApi.Utilities.ConnectyCubeChatApi;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -19,6 +20,7 @@ namespace ChatboxApi
 {
     public class Startup
     {
+        readonly string AllowLocalhostOrigins = "_allowLocalhostOrigins";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -29,7 +31,18 @@ namespace ChatboxApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: AllowLocalhostOrigins,
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:3000", "https://localhost:5001")
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                    });
 
+            });
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -37,6 +50,11 @@ namespace ChatboxApi
             });
             services.AddAutoMapper(typeof(Startup));
             services.AddHttpClient< IConnectyCubeApi, ConnectyCubeApi>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.connectycube.com");
+
+            });
+            services.AddHttpClient<IConnectyCubeChatApi, ConnectyCubeChatApi>(client =>
             {
                 client.BaseAddress = new Uri("https://api.connectycube.com");
 
@@ -54,12 +72,10 @@ namespace ChatboxApi
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ChatboxApi v1"));
             }
 
-            app.UseHttpsRedirection();
-            
-            app.UseCors();
+           /* app.UseHttpsRedirection();*/
 
             app.UseRouting();
-
+            app.UseCors(AllowLocalhostOrigins);
             app.UseAuthorization();
 
             /*app.Map("/api/signup", context => context.UseMiddleware<CreateSession>())*/;

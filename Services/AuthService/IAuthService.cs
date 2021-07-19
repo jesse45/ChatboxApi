@@ -8,6 +8,8 @@ namespace ChatboxApi.Services.AuthService
 {
     public interface IAuthService
     {
-        Task<CreatSessionWithUserAuthorizationModel> CreateSession(UserModel user);
+        
+        Task<object> SignUpUser(UserModel user);
+        Task<object> CreateSessionWithUserAuth(UserModel user);
     }
 }

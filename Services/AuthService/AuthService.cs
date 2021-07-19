@@ -26,28 +26,36 @@ namespace ChatboxApi.Services.AuthService
             _mapper = mapper;
             _clientFactory = clientFactory;
             _connectyCubeApi = connectyCubeApi;
-
+            
         }
-        public async Task<CreatSessionWithUserAuthorizationModel> CreateSession(UserModel user)
+        public async Task<object> SignUpUser(UserModel user)
         {
-
-            
             //call api here
-            string signature = "";
-            string errorString;
-            
+            UserModel newUSer = new UserModel();
             ConnectyCubeUtils connectyCube = new ConnectyCubeUtils();
-            SessionObject session = await connectyCube.GenerateSessionParams(user);
+            ExpandoObject session = await connectyCube.GenerateSessionParams(newUSer);
 
-            /*var response = _mapper.Map<SessionDto>(session);*/
+            
             /*string signSession = connectyCube.SignParams(session); */
-            Console.WriteLine(JsonSerializer.Serialize(session));
+            /*Console.WriteLine(JsonSerializer.Serialize(session));*/
 
+            CreateSessionObj createSession = await _connectyCubeApi.CreateSession(session);
+            
 
-            var createSession = _connectyCubeApi.CreateSessionWithUserAuth(session);
-
-            return await createSession;
+            var signupResponse = await _connectyCubeApi.SignUpUser(createSession.session.token, user);
+            
+            return signupResponse;
         }
 
+        public async Task<object> CreateSessionWithUserAuth(UserModel user)
+        {
+            ConnectyCubeUtils connectyCube = new ConnectyCubeUtils();
+            ExpandoObject session = await connectyCube.GenerateSessionParams(user);
+            var createSessionWithUserAuth = await _connectyCubeApi.CreateSessionWithUserAuth(session);
+
+            return createSessionWithUserAuth;
+        }
+        
+     
     }
 }

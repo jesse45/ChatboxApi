@@ -10,9 +10,11 @@ namespace ChatboxApi.Models
         public string Login { get; set; } = default;
         public string Password { get; set; } = default;
         public string Email { get; set; } = default;
-        public string FullName { get; set; } = default;
-        public int Phone { get; set; } = default;
+        public string Full_Name { get; set; } = default;
+        public string Phone { get; set; } = default;
         public string Website { get; set; } = default;
 
     }
+
+
 }
