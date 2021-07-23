@@ -1,0 +1,15 @@
+{
+  "cred": {
+    "appId": 3610,
+    "authKey": "aDRceQyTXSYEdJU",
+    "authSecret": "dBV2PdhYMnruSMb"
+  },
+  "urls": {
+    "api_endpoint": "https://api.connectycube.com"
+  },
+  "pathNames": {
+    "users": "users",
+    "session": "session"
+  },
+  "apiKey": ""
+}
